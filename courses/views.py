@@ -13,17 +13,8 @@ from .serializers import CategorySerializer
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
-        'user': reverse('courses:user-list', request=request, format=format),
         'category': reverse('courses:category-list', request=request, format=format),
     })
-
-
-class UserList(APIView):
-    permission_classes = [permissions.IsAdminUser]
-
-    def get(self, request, *args, **kwargs):
-        usernames = [user.username for user in User.objects.all()]
-        return Response(usernames)
 
 
 class CategoryList(APIView):
@@ -53,3 +44,16 @@ class CategoryDetail(APIView):
         category = self.get_object(slug)
         serializer = self.serializer_class(category, context={'request': request})
         return Response(serializer.data)
+
+    def put(self, request, slug, format=None):
+        category = self.get_object(slug)
+        serializer = self.serializer_class(category, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, slug, format=None):
+        category = self.get_object(slug)
+        category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
