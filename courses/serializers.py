@@ -16,6 +16,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='courses:course-detail',
+        lookup_field='slug'
+    )
     class Meta:
         model = Course
         fields = ['url', 'title', 'description', 'teacher', 'students', 'year', 'slug']
